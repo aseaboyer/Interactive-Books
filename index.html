@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Paul the square - Interactive Book</title>
+</head>
+<link href='http://fonts.googleapis.com/css?family=Roboto:400,700,500italic' rel='stylesheet' type='text/css'>
+<style>
+* {
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Factory Reset */
+html, body, h1, h2, h3, p, #book, .page {
+	font-family:'Roboto', sans-serif;
+	font-size:18px;
+	margin:0;
+	padding:0;
+	width:100%;
+}
+	body {
+		overflow:hidden;
+	}
+	h1 {
+		color:#fff;
+		font-size:2.4em;
+	}
+	h2 {
+		color:#fff;
+		font-size:1.6em;
+	}
+	p {
+		color:#fff;
+	}
+
+#book {
+	overflow:hidden;
+}
+#book #controls {
+	bottom:0;
+	position:absolute;
+	width:100%;
+	z-index:2;
+}
+	#book #controls img {
+		bottom:0;
+		display:block;
+		opacity:0;
+		position:absolute;
+		transition:opacity 500ms;
+	}
+	#book #controls img:hover {
+		opacity:0.4;
+	}
+	#lastPage {
+		transform: scaleX(-1);
+	}
+	#nextPage {
+		right:0;
+	}
+
+#book .contents {
+
+}
+.page {
+	height: 100%;
+	background: #F52887;
+	opacity:0.4;
+	position:absolute;
+	top:0;
+	transition:
+		left 800ms,
+		opacity 500ms;
+}
+	.page.active {
+		opacity:1;
+	}
+	
+	#page1Trigger {
+		background-color:#fff;
+		height:100px;
+		left: 50%;
+		position: relative;
+		width:100px;
+	}
+	
+	#page2Trigger {
+		background-color:#fff;
+		height:100px;
+		left: 10%;
+		position: relative;
+		width:100px;
+	}
+</style>
+<body>
+<div id="book">
+	<div id="controls">
+		<img src="images/arrows-right-icon.png" id="lastPage" />
+		<img src="images/arrows-right-icon.png" id="nextPage" />
+	</div>
+	<div class='page'>	<!-- The contents of .page are completely flexible markup -->
+		<h1>Paul the Square.</h1>
+		<p>By Andy Seaboyer</p>
+	</div>
+	<div class='page'>	<!-- The contents of .page are completely flexible markup -->
+		<h2>This is a story about Paul.</h2>
+		<p>Can you shake hands with Paul?</p>
+		<div class="paul clickTrigger" id="page1Trigger"></div>
+	</div>
+	<div class='page'>	<!-- The contents of .page are completely flexible markup -->
+		<h2>Paul likes moving right, but he can't on his own.</h2>
+		<p>Can you help Paul move right?</p>
+		<div class="paul dragTrigger" id="page2Trigger" data-drag-id="0"></div>
+	</div>
+	<div class='page'>	<!-- The contents of .page are completely flexible markup -->
+		<h2>Great job!</h2>
+		<p>Paul is a very happy square!</p>
+	</div>
+</div>
+
+<script>
+var und;
+var triggerList = [
+	{
+		"type":'drag',
+		"direction":'right',
+		"start": '10', // percent
+		"end": '80', // percent
+		"origin": {
+			x:0,
+			y:0
+		}
+	},
+];
+var book = {
+	currentPage: 0,
+	pageCount: 0,
+	width: 0,
+	mouse: {
+		position: {
+			x:0,
+			y:0,
+		}
+	},
+	init: function () {
+		this.holdingTrigger = und;
+		var pages = document.getElementsByClassName( "page" );
+	//	console.log( "Pagecount = " + pages.length );
+		this.pageCount = pages.length
+		this.resize();
+	},
+	update: function () {
+		if( this.holdingTrigger != und ) {
+			//this.holdingTrigger.style.left = 
+		}
+	},
+	resize: function () {
+//^		console.log( "resize the book?" );
+	
+		this.width = document.getElementById( "book" ).offsetWidth;
+		console.log( "book width: " + this.width  );
+		
+		// position the offsets for all of the pages so we can create a nice scroll animation
+		this.shufflePages();
+	},
+	changePage: function ( val ) {
+		var newPage = this.currentPage + val;
+		if( newPage >= 0 && newPage < this.pageCount ) {
+			this.currentPage += val;
+		//	console.log( "change page to: " + this.currentPage + " of " + this.pageCount );
+		}
+		this.shufflePages();
+	},
+	shufflePages: function () {
+		var pages = document.getElementsByClassName( "page" );
+		var pageCount = pages.length;
+		for( x = 0; x < pageCount; x++ ) {
+			pages[ x ].classList.remove( "active" );
+			if( x == this.currentPage ) {
+				pages[ x ].classList.add( "active" );
+				pages[ x ].style.left = 0 + "px";
+			} else if( x < this.currentPage ) {
+				pages[ x ].style.left = ( -this.width ) + "px";
+			} else if( x > this.currentPage ) {
+				pages[ x ].style.left = this.width + "px";
+			}
+		}
+	},
+	releaseTrigger: function () {
+		this.holdingTrigger = und;
+		console.log( "Released anything held." ); // bind the release event
+		console.log( this.holdingTrigger );
+	},
+};
+
+book.init();
+window.onresize = resize;
+function resize() { 
+//	console.log( "resize the book!" );
+	book.resize();
+}
+document.getElementById( "lastPage" ).addEventListener("click", function(){ book.changePage( -1 ) }, false);
+document.getElementById( "nextPage" ).addEventListener("click", function(){ book.changePage( 1 ) }, false);
+
+
+// Bind click events
+var clickObjs = document.getElementsByClassName( "clickTrigger" );
+for( x = 0; x < clickObjs.length; x++ ) {
+	clickObjs[ x ].addEventListener( "mousedown", function(){
+		console.log( "Dynamic Click" ); // bind the click event
+		book.changePage( 1 );
+	}, false);
+}
+// Bind drag events
+var dragObjs = document.getElementsByClassName( "dragTrigger" );
+for( x = 0; x < dragObjs.length; x++ ) {
+	dragObjs[ x ].addEventListener( "mousedown", function(){
+		console.log( "Dynamic Drag" ); // bind the click event
+		var triggerData = triggerList[ this.dataset.dragId ];
+		//console.log( this.dataset.dragId );
+		book.holdingTrigger = this;
+	}, false);
+}
+/*
+document.getElementsByClassName( "clickTrigger" ).addEventListener( "mousedown", function(){
+	console.log( "Grabbed Paul!" ); // bind the click event
+	book.holdingTrigger = this;
+//	book.holdingTrigger.style.classList.add( "active" );
+	console.log( book.holdingTrigger );
+}, false);
+*/
+/*
+document.getElementById( "page2Trigger" ).addEventListener( "mousedown", function(){
+	console.log( "Grabbed Paul!" ); // bind the click event
+	book.holdingTrigger = this;
+	console.log( book.holdingTrigger );
+}, false);
+*/
+
+// release all
+document.addEventListener("mouseup", function(){
+	book.releaseTrigger();
+}, false);
+
+// Add mouse position tracking
+document.addEventListener('mousemove', function(e){
+ //   console.log( e.x + ", " + e.y );
+	book.mouse.position.x = e.x;	// Probably don't need to track these
+	book.mouse.position.y = e.y;
+	
+	// FOR NOW -> Just handle drag left cases.
+	
+	if( book.holdingTrigger != und ) {
+		book.holdingTrigger.style.left = e.x + "px";
+		var triggerData = triggerList[ book.holdingTrigger.dataset.dragId ];
+		if( triggerList[ book.holdingTrigger.dataset.dragId ].direction == 'right' ) {
+			var endCase = triggerData.end;
+			var currentPercent = e.x / book.width * 100;
+			if( currentPercent > triggerList[ book.holdingTrigger.dataset.dragId ].end ) {
+				book.changePage( 1 );
+			}
+		}
+	}
+})
+
+// add animation states
+function animate() {
+	requestAnimationFrame( animate ); // only reqeust an update when needed?
+	book.update( );
+}
+animate();
+</script>
+
+</body>
+</html>
