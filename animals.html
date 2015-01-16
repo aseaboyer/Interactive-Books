@@ -2,30 +2,11 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Paul the square - Interactive Book</title>
+	<title>Fun with Animals - Interactive Book</title>
 </head>
 <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,500italic' rel='stylesheet' type='text/css'>
+<link href='book.css' rel='stylesheet' type='text/css'>
 <style>
-* {
-	-webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-/* Factory Reset */
-html, body, h1, h2, h3, p, #book, .page {
-	font-family:'Roboto', sans-serif;
-	font-size:18px;
-	margin:0;
-	padding:0;
-	width:100%;
-}
-	body {
-		overflow:hidden;
-	}
 	h1 {
 		color:#fff;
 		font-size:2.4em;
@@ -68,8 +49,12 @@ html, body, h1, h2, h3, p, #book, .page {
 
 }
 .page {
+	background-color:#e5ddc7;
+	background-image:url("animal-images/bg.png");
+	background-repeat:no-repeat;
+	background-position:0 0;
+	background-size:cover;
 	height: 100%;
-	background: #F52887;
 	opacity:0.4;
 	position:absolute;
 	top:0;
@@ -82,18 +67,21 @@ html, body, h1, h2, h3, p, #book, .page {
 	}
 	
 	#page1Trigger {
-		background-color:#fff;
-		height:100px;
+		background-color:transparent;
+		background-image:url("animal-images/idle-frog.png");
+		background-repeat:no-repeat;
+		background-position:0 0;
+		height:241px;
 		left: 50%;
 		position: absolute;
 		top:45%;
-		width:100px;
+		width:400px;
 	}
 	
 	#page2Trigger {
 		background-color:#fff;
 		height:100px;
-		left: 15%;
+		left: 20%;
 		position: absolute;
 		top:45%;
 		width:100px;
@@ -114,8 +102,17 @@ html, body, h1, h2, h3, p, #book, .page {
 	top:20%;
 	text-align:right;
 }
-	#page2 .pickup {
-		border-radius:5px;
+#page2 #page2Trigger {
+	background-color:transparent;
+	background-image:url("animal-images/frog.png");
+	background-repeat:no-repeat;
+	background-position:0 -50px;
+	position:absolute;
+}
+	#page2  #page2Trigger.pickup {
+		background-position:-160px -50px;
+		height:140px;
+		width:150px;
 	}
 
 #page3 .text-block {
@@ -123,6 +120,15 @@ html, body, h1, h2, h3, p, #book, .page {
 	left:10%;
 	text-align:center;
 	top:20%;
+}
+#page3 .frogImg {
+	background-color:transparent;
+	background-image:url("animal-images/happy-frog.png");
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+	height:100%;
+	position:absolute;
+	width:100%;
 }
 </style>
 <body>
@@ -133,44 +139,36 @@ html, body, h1, h2, h3, p, #book, .page {
 	</div>
 	<div class="page" id="title-page">	<!-- The contents of .page are completely flexible markup -->
 		 <div class="text-block">
-			<h1>Paul the Square.</h1>
+			<h1>Fun with Animals</h1>
 			<p>By Andy Seaboyer</p>
+			<h2 class="clickTrigger" id="page0Trigger">- Start -</h2>
 		</div>
 	</div>
-	<div class="page" id="page1">	<!-- The contents of .page are completely flexible markup -->
+	<div class="page" id="page1" data-page-info="arrows=false">	<!-- The contents of .page are completely flexible markup -->
 		<div class="text-block">
-			<h2>This is a story about Paul.</h2>
-			<p>Can you shake hands with Paul?</p>
+			<h2>This is a story about a frog.</h2>
+			<p>Can you tap the frog?</p>
 		</div>
-		<div class="paul clickTrigger" id="page1Trigger"></div>
+		<div class="clickTrigger" id="page1Trigger"></div>
 	</div>
 	<div class="page" id="page2">	<!-- The contents of .page are completely flexible markup -->
 		<div class="text-block">
-			<h2>Paul likes moving right, but he can't on his own.</h2>
-			<p>Can you help Paul move right?</p>
+			<h2>Frogs like to hop right.</h2>
+			<p>Can you help the frog hop to the right?</p>
 		</div>
-		<div class="paul dragTrigger" id="page2Trigger" data-drag-id="0" data-drag-info="right|15|80"></div>
+		<div class="dragTrigger" id="page2Trigger" data-drag-id="0" data-drag-info="right|20|70"></div>
 	</div>
-	<div class="page" id="page3">	<!-- The contents of .page are completely flexible markup -->
+	<div class="page" id="page3" data-page-info="arrows=false">	<!-- The contents of .page are completely flexible markup -->
 		<div class="text-block">
 			<h2>Great job!</h2>
-			<p>Paul is a very happy square!</p>
+			<p>You made the frog very happy!</p>
 		</div>
+		<div class="frogImg"></div>
 	</div>
 </div>
 
 <script>
 var und;
-/*
-var triggerList = [
-	{
-		"type":'drag',
-		"direction":'right',
-		"start": '10', // percent
-		"end": '80', // percent
-	},
-];
-*/
 var book = {
 	currentPage: 0,
 	pageCount: 0,
@@ -264,21 +262,6 @@ for( x = 0; x < dragObjs.length; x++ ) {
 		book.pickup( this );
 	}, false);
 }
-/*
-document.getElementsByClassName( "clickTrigger" ).addEventListener( "mousedown", function(){
-	console.log( "Grabbed Paul!" ); // bind the click event
-	book.holdingTrigger = this;
-//	book.holdingTrigger.style.classList.add( "active" );
-	console.log( book.holdingTrigger );
-}, false);
-*/
-/*
-document.getElementById( "page2Trigger" ).addEventListener( "mousedown", function(){
-	console.log( "Grabbed Paul!" ); // bind the click event
-	book.holdingTrigger = this;
-	console.log( book.holdingTrigger );
-}, false);
-*/
 
 // release all
 document.addEventListener("mouseup", function(){
